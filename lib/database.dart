@@ -1,6 +1,5 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'dart:async';
 
 class Contacto {
@@ -14,6 +13,7 @@ class Contacto {
 
   Map<String, dynamic> toMap(){
     return{
+      "id":id,
       "nombre": nombre,
       "apellidos": apellidos,
       "telefono": telefono,
@@ -35,9 +35,8 @@ class ContactDataBase{
   initDB() async{
     var databasesPath = await getDatabasesPath();
     String path = join(databasesPath, 'contact.db');
-     database = await openDatabase(path, version: 1,
+     database = await openDatabase(path, version: 2,
         onCreate: (Database db, int version) async {
-          // When creating the db, create the table
           await db.execute(
               'CREATE TABLE contacto (id INTEGER PRIMARY KEY, nombre TEXT, apellidos TEXT, telefono TEXT, direccion TEXT)');
         });
@@ -46,7 +45,7 @@ class ContactDataBase{
   insert(Contacto contacto) async {
     var databasesPath = await getDatabasesPath();
     String path = join(databasesPath, 'contact.db');
-    database = await openDatabase(path, version: 1);
+    database = await openDatabase(path, version: 2);
     await database.transaction((txn) async {
       int id = await txn.rawInsert(
           'INSERT INTO contacto(nombre, apellidos, telefono, direccion) VALUES(?, ?, ?, ?)',
@@ -64,6 +63,15 @@ class ContactDataBase{
     // Delete a record
     int count = await database.rawDelete('DELETE FROM contacto WHERE id = ?', [contacto.id]) ;
     assert(count == 1);
+  }
+
+  update(Contacto contacto, int id) async{
+    var databasesPath = await getDatabasesPath();
+    String path = join(databasesPath, 'contact.db');
+    database = await openDatabase(path, version: 2);
+    int count = await database.rawUpdate('UPDATE contacto SET nombre = ?, apellidos = ?, telefono = ?, direccion = ? WHERE id = ?',
+        [contacto.nombre.toString(), contacto.apellidos.toString(), contacto.telefono.toString(), contacto.direccion.toString(),id]);
+    print('updated: $count');
   }
 
 }

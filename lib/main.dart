@@ -98,7 +98,8 @@ class _MyHomePageState extends State<MyHomePage> {
         if(snapshot.hasData){
           return ListView(
             children: <Widget>[
-              for(Contacto contact in snapshot.data) ListTile(
+              for(Contacto contact in snapshot.data)
+                ListTile(
                 title: Text(contact.nombre.toString() + " " + contact.apellidos.toString()),
                 subtitle: Text(contact.telefono.toString() + "\n" + contact.direccion.toString()),
                 //leading: Icon(Icons.account_circle),
@@ -106,7 +107,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     spacing: 12,  // space between two icons
                     children: <Widget>[
                       IconButton(icon: Icon(Icons.edit), onPressed: (){
-                        print("CONTACTO: "+contact.nombre.toString());
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => EditarContacto(contact: contact)),
+                        );
                       }),
                       IconButton(icon: Icon(Icons.delete), onPressed: (){
                         db.delete(contact);
@@ -127,8 +131,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
       }
     );
-    setState(() {
-    });
   }
 }
 
@@ -153,7 +155,6 @@ class NuevoContacto extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: <Widget> [
                 TextFormField(
-
                   decoration: InputDecoration(
                       hintText: 'E.j: Brian',
                       labelText: 'Su nombre'
@@ -166,7 +167,6 @@ class NuevoContacto extends StatelessWidget {
                   },
                   onSaved: (value) => nmbr = value,
                 ),
-
                 TextFormField(
                   decoration: InputDecoration(
                       hintText: 'E.j: Narvaez',
@@ -204,7 +204,8 @@ class NuevoContacto extends StatelessWidget {
 
                               var contacto = Contacto(nmbr,plld,tlfn,drccn);
                               db.insert(contacto);
-                              Navigator.pop(context);
+                              Navigator.of(context).pop();
+                              //Navigator.pop(context);
                             }
                           },
                           child: Text("Agregar"),
@@ -216,6 +217,100 @@ class NuevoContacto extends StatelessWidget {
             ),
           ),
         )
+      ),
+    );
+  }
+}
+
+
+class EditarContacto extends StatelessWidget {
+  ContactDataBase db = new ContactDataBase();
+
+  var _formKey = GlobalKey<FormState>();  //<-------AQUI DECLARO EL FORMKEY
+  String nmbr, plld, tlfn, drccn;
+  int id;
+
+  final Contacto contact;
+  EditarContacto({this.contact});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Editar Contacto"),
+      ),
+      body: Card(
+          child: Padding(
+            padding: EdgeInsets.all(10),
+            child: Form(
+              key: _formKey,                   //<-------AQUI LO ASIGNO
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget> [
+                  TextFormField(
+                    initialValue: contact.nombre.toString(),
+                    decoration: InputDecoration(
+                        labelText: 'Su nombre'
+                    ),
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Por favor, digite el nombre';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) => nmbr = value,
+                  ),
+
+                  TextFormField(
+                    initialValue: contact.apellidos.toString(),
+                    decoration: InputDecoration(
+                        labelText: 'Sus apellidos'
+                    ),
+                    validator: (input) => input.length < 1 ? 'Apellido invalido' : null,
+                    onSaved: (input) => plld = input,
+                  ),
+                  TextFormField(
+                    initialValue: contact.telefono.toString(),
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                        labelText: 'Su número de teléfono'
+                    ),
+                    validator: (input) => input.length < 1 ? 'Telefono invalido' : null,
+                    onSaved: (input) => tlfn = input,
+                  ),
+                  TextFormField(
+                    initialValue: contact.direccion.toString(),
+                    decoration: InputDecoration(
+                        labelText: 'Su dirección'
+                    ),
+                    validator: (input) => input.length < 1 ? 'Dirección invalida' : null,
+                    onSaved: (input) => drccn = input,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: RaisedButton(
+                          onPressed: () {
+                            if(_formKey.currentState.validate()){
+                              _formKey.currentState.save();
+                              id = contact.id;
+                              var contacto = Contacto(nmbr,plld,tlfn,drccn);
+                              db.update(contacto, id);
+                            }
+                            Navigator.of(context).pop();
+                            //Navigator.pop(context);
+                          },
+                          child: Text("Guardar"),
+                        ),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            ),
+          )
       ),
     );
   }
