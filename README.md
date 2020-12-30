@@ -5,6 +5,7 @@ App sobre libreta de contactos diseñadaa con Flutter y Android Studio
 ## Pre-requisitos
 
 *Tener instalado [Android Studio](https://developer.android.com/studio?hl=es) o [Visual Studio Code](https://code.visualstudio.com/download)
+
 *Tener instalado [Flutter](https://flutter.dev/docs/get-started/install)
 
 
@@ -42,4 +43,4 @@ Deja que termine de configurar el repositorio para que no tengas errores, con es
 
 ### Construido con
 
-El desarrollo de esta aplicacion se elaboró mediante el IDE Android Studio, utiliznado el SDK Flutter y el plugin [SQFLite](https://pub.dev/packages/sqflite) para la persistencia de datos.
+El desarrollo de esta aplicacion se elaboró mediante el IDE Android Studio, utiliznado el SDK Flutter y el plugin [SQFLite](https://pub.dev/packages/sqflite) para la persistencia de datos. Dado la implementación con Flutter, el lenguaje de programación principal con el que se desarrollo la app fue Dart
