@@ -47,9 +47,8 @@ El desarrollo de esta aplicacion se elaboró mediante el IDE Android Studio, uti
 
 ## Estructura de las carpetas
 - android
-> - database.dart
 - ios
 - lib
-> - database.dart
-> - main.dart
+  - database.dart
+  - main.dart
 - test
