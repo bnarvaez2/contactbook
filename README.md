@@ -17,7 +17,7 @@ ejemplos, orientación sobre desarrollo móvil y una referencia completa de API.
 
 Puedes descargar este proyecto [aqui](https://github.com/bnarvaez2/contactbook.git) o importarlo a Visual Studio Code o Android Studio
 ### Para importarlo a Android Studio 
-1.- Abre Android Studio y selecciona la opción Check out project from Version Control la cual te desplegará una lista de opciones, selecciona la opción Git
+1 Abre Android Studio y selecciona la opción Check out project from Version Control la cual te desplegará una lista de opciones, selecciona la opción Git
 2.- Vamos a clonar un repositorio copia su dirección HTTPS de GitHub
 3.- Ahora pega la dirección HTTPS en la ventana para clonar el repositorio Git de Android Studio. 
 Puedes hacer click en el botón Test para comprobar si hay conexión disponible con el repositorio que deseas clonar.
