@@ -44,3 +44,12 @@ Deja que termine de configurar el repositorio para que no tengas errores, con es
 ### Construido con
 
 El desarrollo de esta aplicacion se elaboró mediante el IDE Android Studio, utiliznado el SDK Flutter y el plugin [SQFLite](https://pub.dev/packages/sqflite) para la persistencia de datos. Dado la implementación con Flutter, el lenguaje de programación principal con el que se desarrollo la app fue Dart
+
+## Estructura de las carpetas
+- android
+> - database.dart
+- ios
+- lib
+> - database.dart
+> - main.dart
+- test
