@@ -1,6 +1,6 @@
 # contactbook
 
-App sobre libreta de contactos diseñadaa con Flutter y Android Studio
+App sobre libreta de contactos diseñada con Flutter y Android Studio
 
 ## Pre-requisitos
 
