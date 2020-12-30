@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'database.dart';
+import 'package:toast/toast.dart';
 
 void main() {
   runApp(MyApp());
@@ -65,24 +66,36 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: FutureBuilder(
-        future: db.initDB(),
-        builder: (BuildContext context, snapshot) {
-          if(snapshot.connectionState == ConnectionState.done){
-            return mostrarContactos(context);
-          }else{
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        },
+      body: RefreshIndicator(
+        onRefresh: (){
+          Navigator.pushReplacement(
+              context, 
+              PageRouteBuilder(pageBuilder: (a, b, c)=>MyApp(),transitionDuration: Duration(seconds: 0),));
+
+              Toast.show("Lista actualizada.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+            return Future.value(false);
+          },
+        child: FutureBuilder(
+          future: db.initDB(),
+          builder: (BuildContext context, snapshot) {
+            if(snapshot.connectionState == ConnectionState.done){
+              return mostrarContactos();
+            }else{
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: (){
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => NuevoContacto()),
-          );
+          setState(() {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => NuevoContacto()),
+            );
+          });
         },
         tooltip: 'Agregar contacto',
         child: Icon(Icons.add),
@@ -91,7 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
 
-  mostrarContactos(BuildContext context){
+  mostrarContactos(){
     return FutureBuilder(
       future: db.getAll(),
       builder: (BuildContext context, AsyncSnapshot<List<Contacto>> snapshot){
@@ -107,15 +120,45 @@ class _MyHomePageState extends State<MyHomePage> {
                     spacing: 12,  // space between two icons
                     children: <Widget>[
                       IconButton(icon: Icon(Icons.edit), onPressed: (){
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => EditarContacto(contact: contact)),
-                        );
-                      }),
-                      IconButton(icon: Icon(Icons.delete), onPressed: (){
-                        db.delete(contact);
                         setState(() {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => EditarContacto(contact: contact)),
+                          );
                         });
+
+                      }),
+                      IconButton(icon: Icon(Icons.delete),
+                          onPressed: () {
+                            showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                    title: Text("Alerta"),
+                                    content: Text("¿Desea eliminar este contacto"),
+                                    actions: <Widget>[
+                                      FlatButton(
+                                        child: Text("Si"),
+                                        onPressed: (){
+                                          Navigator.of(context).pop(0);
+                                        },
+                                      ),
+                                      FlatButton(
+                                        child: Text("No"),
+                                        onPressed: (){
+                                          Navigator.of(context).pop(1);
+                                        },
+                                      )
+                                    ]
+                                )
+                            ).then((result){
+                              if(result == 0){
+                                db.delete(contact);
+                                setState(() {
+                                  Toast.show("Contacto eliminado", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+                                });
+                              }
+                            });
+
                       }),
                     ],
                 ),
@@ -135,22 +178,54 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class NuevoContacto extends StatelessWidget {
+  GlobalKey _scaffold = GlobalKey();
   ContactDataBase db = new ContactDataBase();
 
-  var _formKey = GlobalKey<FormState>();  //<-------AQUI DECLARO EL FORMKEY
+  var _formKey = GlobalKey<FormState>();
   String nmbr, plld, tlfn, drccn;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffold,
       appBar: AppBar(
         title: Text("Nuevo Contacto"),
+        leading: new IconButton(
+          icon: new Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text("Alerta"),
+                content: Text("¿Seguro que deseas salir?"),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text("Si"),
+                    onPressed: (){
+                      Navigator.of(context).pop(0);
+                    },
+                  ),
+                  FlatButton(
+                    child: Text("No"),
+                    onPressed: (){
+                      Navigator.of(context).pop(1);
+                    },
+                  )
+                ]
+              )
+            ).then((result){
+              if(result == 0){
+                Navigator.of(context).pop();
+              }
+            });
+          },
+        ),
       ),
       body: Card(
         child: Padding(
           padding: EdgeInsets.all(10),
           child: Form(
-            key: _formKey,                   //<-------AQUI LO ASIGNO
+            key: _formKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget> [
@@ -199,14 +274,7 @@ class NuevoContacto extends StatelessWidget {
                       padding: const EdgeInsets.all(15),
                       child: RaisedButton(
                         onPressed: () {
-                            if(_formKey.currentState.validate()){
-                              _formKey.currentState.save();
-
-                              var contacto = Contacto(nmbr,plld,tlfn,drccn);
-                              db.insert(contacto);
-                              Navigator.of(context).pop();
-                              //Navigator.pop(context);
-                            }
+                            agregarContacto(context);
                           },
                           child: Text("Agregar"),
                       ),
@@ -220,13 +288,22 @@ class NuevoContacto extends StatelessWidget {
       ),
     );
   }
-}
 
+  agregarContacto(BuildContext context) {
+    if(_formKey.currentState.validate()){
+      _formKey.currentState.save();
+      var contacto = Contacto(nmbr,plld,tlfn,drccn);
+      db.insert(contacto);
+      Toast.show("Contacto agregado.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+      Navigator.pop(context);
+    }
+  }
+}
 
 class EditarContacto extends StatelessWidget {
   ContactDataBase db = new ContactDataBase();
 
-  var _formKey = GlobalKey<FormState>();  //<-------AQUI DECLARO EL FORMKEY
+  var _formKey = GlobalKey<FormState>();
   String nmbr, plld, tlfn, drccn;
   int id;
 
@@ -238,12 +315,52 @@ class EditarContacto extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("Editar Contacto"),
+        leading: new IconButton(
+          icon: new Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                    title: Text("Alerta"),
+                    content: Text("¿Desea guardar lo cambios?"),
+                    actions: <Widget>[
+                      FlatButton(
+                        child: Text("Si"),
+                        onPressed: (){
+                          Navigator.of(context).pop(0);
+                        },
+                      ),
+                      FlatButton(
+                        child: Text("No"),
+                        onPressed: (){
+                          Navigator.of(context).pop(1);
+                        },
+                      ),
+                      FlatButton(
+                        child: Text("Cancelar"),
+                        onPressed: (){
+                          Navigator.of(context).pop(-1);
+                        },
+                      )
+                    ]
+                )
+            ).then((result){
+              if(result == 0){
+                actualizarContacto(context);
+              }else{
+                if(result == 1){
+                  Navigator.of(context).pop();
+                }
+              }
+            });
+          },
+        ),
       ),
       body: Card(
           child: Padding(
             padding: EdgeInsets.all(10),
             child: Form(
-              key: _formKey,                   //<-------AQUI LO ASIGNO
+              key: _formKey,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget> [
@@ -260,7 +377,6 @@ class EditarContacto extends StatelessWidget {
                     },
                     onSaved: (value) => nmbr = value,
                   ),
-
                   TextFormField(
                     initialValue: contact.apellidos.toString(),
                     decoration: InputDecoration(
@@ -293,14 +409,7 @@ class EditarContacto extends StatelessWidget {
                         padding: const EdgeInsets.all(15),
                         child: RaisedButton(
                           onPressed: () {
-                            if(_formKey.currentState.validate()){
-                              _formKey.currentState.save();
-                              id = contact.id;
-                              var contacto = Contacto(nmbr,plld,tlfn,drccn);
-                              db.update(contacto, id);
-                            }
-                            Navigator.of(context).pop();
-                            //Navigator.pop(context);
+                            actualizarContacto(context);
                           },
                           child: Text("Guardar"),
                         ),
@@ -313,5 +422,17 @@ class EditarContacto extends StatelessWidget {
           )
       ),
     );
+  }
+
+  actualizarContacto(BuildContext context){
+    if(_formKey.currentState.validate()){
+      _formKey.currentState.save();
+      id = contact.id;
+      var contacto = Contacto(nmbr,plld,tlfn,drccn);
+      db.update(contacto, id);
+
+      Navigator.pop(context);
+      Toast.show("Contacto actualizado.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+    }
   }
 }
