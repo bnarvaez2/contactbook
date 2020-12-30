@@ -2,6 +2,12 @@
 
 App sobre libreta de contactos diseñadaa con Flutter y Android Studio
 
+## Pre-requisitos
+
+*Tener instalado [Android Studio](https://developer.android.com/studio?hl=es) o [Visual Studio Code](https://code.visualstudio.com/download)
+*Tener instalado [Flutter](https://flutter.dev/docs/get-started/install)
+
+
 ## Comenzando
 
 Este proyecto es un punto de partida para una aplicación Flutter.
@@ -29,3 +35,11 @@ Deja que termine de configurar el repositorio para que no tengas errores, con es
 
 - Tambien puedes hacerlo de otra forma: Si estas dentro de un proyecto en Android Studio, puedes clonar un repositorio, seleccionando el menú VCS > Git > Clone y seguir los mismos pasos mencionados anteriormente
 
+###Notas
+- Los pasos mencionados en este artículo, pueden cambiar en futuras versiones de Android Studio, esto no depende de nosotros si no de los desarrolladores que dan soporte a Android Studio.
+- Al intentar clonar un repositorio, puedes tener errores, puedes solucionarlos, investigando en la página del repositorio o buscar otro repositorio que no este fallando, esto no depende de nosotros si no de los desarrolladores que crean los repositorios.
+- No olvides que debemos usar la tecnología para hacer cosas buenas por el mundo.
+
+## Construido con
+
+El desarrollo de esta aplicacion se elaboró mediante el IDE Android Studio, utiliznado el SDK Flutter y el plugin [SQFLite](https://pub.dev/packages/sqflite) para la persistencia de datos.
